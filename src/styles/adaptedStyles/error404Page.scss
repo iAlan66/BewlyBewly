@@ -12,7 +12,7 @@
 
   // #region theme color adaption part
   // Increase the priority of the style inside by writing a non-existent selector in :not()
-  :not(fdjslfds) {
+  :not(foobar) {
     .error-panel .rollback-btn,
     .error-manga .change-img-btn {
       background-color: var(--bew-theme-color);
@@ -28,7 +28,7 @@
   // #region dark mode adaption part
   &.dark {
     .error-container {
-      background-color: var(--bew-content-solid-1);
+      background-color: var(--bew-content-solid);
     }
   }
   // #endregion

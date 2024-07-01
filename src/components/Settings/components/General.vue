@@ -110,6 +110,10 @@ function handleToggleDockItem(dockItem: any) {
         />
       </SettingsItem>
 
+      <SettingsItem :title="$t('settings.enable_grid_layout_switcher')">
+        <Radio v-model="settings.enableGridLayoutSwitcher" />
+      </SettingsItem>
+
       <SettingsItem :title="$t('settings.enable_horizontal_scrolling')" :desc="$t('settings.enable_horizontal_scrolling_desc')">
         <Radio v-model="settings.enableHorizontalScrolling" />
       </SettingsItem>
@@ -203,6 +207,12 @@ function handleToggleDockItem(dockItem: any) {
             </div>
           </template>
         </draggable>
+      </SettingsItem>
+      <SettingsItem :title="$t('settings.disable_light_dark_mode_switcher')">
+        <Radio v-model="settings.disableLightDarkModeSwitcherOnDock" />
+      </SettingsItem>
+      <SettingsItem :title="$t('settings.move_back_to_top_and_refresh_to_dock')">
+        <Radio v-model="settings.moveBackToTopOrRefreshButtonToDock" />
       </SettingsItem>
     </SettingsItemGroup>
   </div>

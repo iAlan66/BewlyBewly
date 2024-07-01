@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useDateFormat } from '@vueuse/core'
 import type { Ref } from 'vue'
-import { onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import Empty from '~/components/Empty.vue'
@@ -11,12 +10,12 @@ import { useApiClient } from '~/composables/api'
 import type { HistoryResult, List as HistoryItem } from '~/models/history/history'
 import { Business } from '~/models/history/history'
 import { calcCurrentTime } from '~/utils/dataFormatter'
-import { isHomePage, removeHttpFromUrl, smoothScrollToTop } from '~/utils/main'
+import { isHomePage, removeHttpFromUrl, scrollToTop } from '~/utils/main'
 
 const { t } = useI18n()
 const api = useApiClient()
 const historys = reactive<Array<HistoryItem>>([])
-const historyTabs = reactive([
+const historyTabs = computed(() => [
   {
     id: 0,
     name: t('topbar.moments_dropdown.tabs.videos'),
@@ -49,7 +48,7 @@ watch(activatedTab, (newVal: number | undefined, oldVal: number | undefined) => 
 
   historys.length = 0
   if (historysWrap.value)
-    smoothScrollToTop(historysWrap.value, 300)
+    scrollToTop(historysWrap.value)
 
   if (newVal === 0) {
     getHistoryList(Business.ARCHIVE)
@@ -103,7 +102,7 @@ function onClickTab(tabId: number) {
     return
 
   activatedTab.value = tabId
-  historyTabs.forEach((tab) => {
+  historyTabs.value.forEach((tab) => {
     tab.isSelected = tab.id === tabId
   })
 }
@@ -168,11 +167,13 @@ function getHistoryList(type: Business, view_at = 0 as number) {
 
 <template>
   <div
-    bg="$bew-elevated-solid-1"
+    style="backdrop-filter: var(--bew-filter-glass-1);"
+    bg="$bew-elevated"
     w="380px"
     rounded="$bew-radius"
     pos="relative"
-    style="box-shadow: var(--bew-shadow-2)"
+    shadow="[var(--bew-shadow-edge-glow-1),var(--bew-shadow-3)]"
+    border="1 $bew-border-color"
   >
     <!-- top bar -->
     <header
@@ -182,7 +183,7 @@ function getHistoryList(type: Business, view_at = 0 as number) {
       p="y-4 x-6"
       pos="fixed top-0 left-0"
       w="full"
-      bg="$bew-elevated-1"
+      bg="$bew-elevated"
       z="2"
       border="!rounded-t-$bew-radius"
     >
@@ -221,17 +222,17 @@ function getHistoryList(type: Business, view_at = 0 as number) {
         <Loading
           v-if="isLoading && historys.length === 0"
           h="full"
-          flex="~"
-          items="center"
+          flex="~ items-center"
         />
 
         <!-- empty -->
         <Empty
           v-if="!isLoading && historys.length === 0"
           pos="absolute top-0 left-0"
-          bg="$bew-content-1"
+          bg="$bew-content"
           z="0" w="full" h="full"
           flex="~ items-center"
+          rounded="$bew-radius"
         />
 
         <!-- historys -->
@@ -394,20 +395,20 @@ function getHistoryList(type: Business, view_at = 0 as number) {
 
 <style lang="scss" scoped>
 .tab {
-  --at-apply: relative text-$bew-text-2;
+  --uno: "relative text-$bew-text-2";
 
   &::after {
-    --at-apply: absolute bottom-0 left-0 w-full h-12px bg-$bew-theme-color
-      opacity-0 transform scale-x-0 -z-1 transition-all duration-300;
-    content: '';
+    --uno: "absolute bottom-0 left-0 w-full h-12px bg-$bew-theme-color opacity-0 transform scale-x-0 -z-1";
+    --uno: "transition-all duration-300";
+    content: "";
   }
 }
 
 .tab-selected {
-  --at-apply: font-bold text-$bew-text-1;
+  --uno: "font-bold text-$bew-text-1";
 
   &::after {
-    --at-apply: scale-x-80 opacity-40;
+    --uno: "scale-x-80 opacity-40";
   }
 }
 </style>

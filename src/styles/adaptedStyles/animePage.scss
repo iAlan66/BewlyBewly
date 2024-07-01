@@ -6,12 +6,7 @@
       .is-hover-title
       a.title-group:hover
       .hover-sub-title,
-    .home-banner-wrapper
-      .banner-hover-group
-      .banner-hover-group-title
-      .is-hover-title
-      a.title-group:hover
-      .hover-title,
+    .home-banner-wrapper .banner-hover-group .banner-hover-group-title .is-hover-title a.title-group:hover .hover-title,
     .home-cell-desc-title:hover,
     #home_v3_mod_index.home-index-wrapper.inner-content-wrapper
       .inner-content-body
@@ -61,10 +56,7 @@
         .index-categary-head,
       .home-cell-desc-title,
       .timeline-weekday-item .weekday-description .timeline-item-title,
-      .section-title-v2-wrapper
-        .title-left
-        .week-day-wrapper
-        .week-day-item.active,
+      .section-title-v2-wrapper .title-left .week-day-wrapper .week-day-item.active,
       .section-title-v2-wrapper .title-right,
       .nav-tool-container .section,
       .nav-tool-container a {
@@ -89,33 +81,26 @@
       .section-title-v2-wrapper .title-left .week-day-wrapper,
       .section-title-v2-wrapper .title-right,
       .nav-tool-container .section,
-      #home_v3_module_page_switch.home-page-switch-wrapper
-        .inner-content-body-container
-        .next-page,
-      #home_v3_module_page_switch.home-page-switch-wrapper
-        .inner-content-body-container
-        .prev-page,
+      #home_v3_module_page_switch.home-page-switch-wrapper .inner-content-body-container .next-page,
+      #home_v3_module_page_switch.home-page-switch-wrapper .inner-content-body-container .prev-page,
       .time-line-wrapper .time-line-body .timeline-common-content .next-page,
       .time-line-wrapper .time-line-body .timeline-common-content .prev-page {
-        background-color: var(--bew-content-solid-1);
+        background-color: var(--bew-content-solid);
       }
 
       .nav-tool-container .channel-entry .channel-item:hover,
       .nav-tool-container .new-q:hover,
       .nav-tool-container .top:hover,
       .nav-tool-container .service:hover {
-        background-color: var(--bew-content-solid-1-hover);
+        background-color: var(--bew-content-solid-hover);
       }
 
-      .section-title-v2-wrapper
-        .title-left
-        .week-day-wrapper
-        .week-day-item.active {
+      .section-title-v2-wrapper .title-left .week-day-wrapper .week-day-item.active {
         background-color: var(--bew-fill-1);
       }
 
       .section-title-v2-wrapper .title-right:hover {
-        background-color: var(--bew-content-solid-1-hover);
+        background-color: var(--bew-content-solid-hover);
       }
 
       .recommend-feed-line-rank-wrapper.feenline-rank-wrapper {
@@ -128,12 +113,8 @@
 
       .section-title-v2-wrapper .title-right,
       .nav-tool-container .section,
-      #home_v3_module_page_switch.home-page-switch-wrapper
-        .inner-content-body-container
-        .next-page,
-      #home_v3_module_page_switch.home-page-switch-wrapper
-        .inner-content-body-container
-        .prev-page,
+      #home_v3_module_page_switch.home-page-switch-wrapper .inner-content-body-container .next-page,
+      #home_v3_module_page_switch.home-page-switch-wrapper .inner-content-body-container .prev-page,
       .time-line-wrapper .time-line-body .timeline-common-content .next-page,
       .time-line-wrapper .time-line-body .timeline-common-content .prev-page {
         border-color: var(--bew-border-color);
@@ -155,10 +136,7 @@
       }
 
       .timeline-weekday-item .weekday-update-datetime,
-      .timeline-weekday-item
-        .weekday-description
-        .update-progress
-        .updated-num {
+      .timeline-weekday-item .weekday-description .update-progress .updated-num {
         filter: invert(1) hue-rotate(180deg);
       }
 
@@ -169,28 +147,10 @@
       }
 
       .nav-tool-container a svg *[stroke],
-      #home_v3_module_page_switch.home-page-switch-wrapper
-        .inner-content-body-container
-        .next-page
-        svg
-        path,
-      #home_v3_module_page_switch.home-page-switch-wrapper
-        .inner-content-body-container
-        .prev-page
-        svg
-        path,
-      .time-line-wrapper
-        .time-line-body
-        .timeline-common-content
-        .next-page
-        svg
-        path,
-      .time-line-wrapper
-        .time-line-body
-        .timeline-common-content
-        .prev-page
-        svg
-        path {
+      #home_v3_module_page_switch.home-page-switch-wrapper .inner-content-body-container .next-page svg path,
+      #home_v3_module_page_switch.home-page-switch-wrapper .inner-content-body-container .prev-page svg path,
+      .time-line-wrapper .time-line-body .timeline-common-content .next-page svg path,
+      .time-line-wrapper .time-line-body .timeline-common-content .prev-page svg path {
         stroke: var(--bew-text-1);
       }
     }

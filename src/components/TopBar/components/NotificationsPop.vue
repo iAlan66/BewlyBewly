@@ -73,12 +73,14 @@ function getUnreadMessageCount() {
 
 <template>
   <div
-    bg="$bew-elevated-solid-1"
+    style="backdrop-filter: var(--bew-filter-glass-1);"
+    bg="$bew-elevated"
     w="170px"
     p="4"
     rounded="$bew-radius"
+    shadow="[var(--bew-shadow-edge-glow-1),var(--bew-shadow-3)]"
+    border="1 $bew-border-color"
     flex="~ col"
-    shadow="$bew-shadow-3"
   >
     <a
       v-for="item in list"

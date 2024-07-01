@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { onKeyStroke } from '@vueuse/core'
+import { onKeyStroke, useDebounceFn } from '@vueuse/core'
+import DOMPurify from 'dompurify'
 
 import { useApiClient } from '~/composables/api'
-import { useBewlyImage } from '~/composables/useImage'
 import { findLeafActiveElement } from '~/utils/element'
 
 import type { HistoryItem, SuggestionItem, SuggestionResponse } from './searchHistoryProvider'
@@ -19,7 +19,6 @@ defineProps<{
   focusedCharacter?: string
 }>()
 
-const { getBewlyImage } = useBewlyImage()
 const api = useApiClient()
 const keywordRef = ref<HTMLInputElement>()
 const isFocus = ref<boolean>(false)
@@ -58,7 +57,7 @@ onKeyStroke('Escape', (e: KeyboardEvent) => {
   isFocus.value = false
 }, { target: keywordRef })
 
-function handleInput() {
+const handleInput = useDebounceFn(() => {
   selectedIndex.value = -1
   if (keyword.value.trim().length > 0) {
     api.search.getSearchSuggestion({
@@ -73,7 +72,7 @@ function handleInput() {
   else {
     suggestions.length = 0
   }
-}
+}, 200)
 
 async function navigateToSearchResultPage(keyword: string) {
   if (keyword) {
@@ -196,7 +195,7 @@ async function handleClearSearchHistory() {
     <div class="search-bar group" :class="isFocus ? 'focus' : ''" flex="~" items-center pos="relative">
       <Transition name="focus-character">
         <img
-          v-show="focusedCharacter && isFocus" :src="getBewlyImage(focusedCharacter || '')"
+          v-show="focusedCharacter && isFocus" :src="focusedCharacter"
           width="100" object-contain pos="absolute right-0 bottom-40px"
         >
       </Transition>
@@ -208,8 +207,7 @@ async function handleClearSearchHistory() {
         p="l-6 r-18 y-3"
         h-50px
         text="$bew-text-1"
-        un-border="3 solid transparent focus:$bew-theme-color"
-        ring="1 $bew-border-color"
+        un-border="1 solid $bew-border-color focus:$bew-theme-color"
         transition="all duration-300"
         type="text"
         @focus="isFocus = true"
@@ -297,7 +295,7 @@ async function handleClearSearchHistory() {
           class="suggestion-item"
           @click="navigateToSearchResultPage(item.value)"
         >
-          <span v-html="item.name" />
+          <span v-html="DOMPurify.sanitize(item.name)" />
         </div>
       </div>
     </Transition>
@@ -306,101 +304,96 @@ async function handleClearSearchHistory() {
 
 <style lang="scss" scoped>
 ::v-deep(.suggest_high_light) {
-  --at-apply: text-$bew-theme-color not-italic;
+  --uno: "text-$bew-theme-color not-italic";
 }
 
 .result-list-enter-active,
 .result-list-leave-active {
-  --at-apply: transition-all duration-300 ease-in-out;
+  --uno: "transition-all duration-300 ease-in-out";
 }
 
 .result-list-enter-from,
 .result-list-leave-to {
-  --at-apply: transform translate-y-4 opacity-0 scale-95;
+  --uno: "transform translate-y-4 opacity-0 scale-95";
 }
 
 .focus-character-enter-active,
 .focus-character-leave-active {
-  --at-apply: transition-all duration-300 ease-in-out;
+  --uno: "transition-all duration-300 ease-in-out";
 }
 
 .focus-character-enter-from,
 .focus-character-leave-to {
-  --at-apply: transform translate-y-6 opacity-0;
+  --uno: "transform translate-y-6 opacity-0";
 }
 
 .mask-enter-active,
 .mask-leave-active {
-  --at-apply: transition-all duration-300 ease-in-out;
+  --uno: "transition-all duration-300 ease-in-out";
 }
 
 .mask-enter-from,
 .mask-leave-to {
-  --at-apply: opacity-0;
+  --uno: "opacity-0";
 }
 
 .mask-enter-to,
 .mask-leave-from {
-  --at-apply: opacity-100;
+  --uno: "opacity-100";
 }
 
 #search-wrap {
-  --b-search-bar-color: var(--bew-content-1);
-  --b-search-bar-color-hover: var(--bew-content-1-hover);
+  --b-search-bar-color: var(--bew-content);
+  --b-search-bar-color-hover: var(--bew-content-hover);
   --b-search-bar-color-focus: var(--b-search-bar-color);
 
   @mixin card-content {
-    --at-apply: text-base outline-none w-full
-      bg-$b-search-bar-color shadow-$bew-shadow-2 transform-gpu;
+    --uno: "text-base outline-none w-full bg-$b-search-bar-color transform-gpu border-1 border-$bew-border-color";
+    --uno: "shadow-[var(--bew-shadow-2),var(--bew-shadow-edge-glow-1)]";
     backdrop-filter: var(--bew-filter-glass-1);
   }
 
   .search-bar {
     input {
       @include card-content;
-      --at-apply: shadow-$bew-shadow-2;
 
       &:hover {
-        --at-apply: bg-$b-search-bar-color-hover;
-      }
-
-      &:focus {
-        --at-apply: bg-$b-search-bar-color-focus;
-        box-shadow: 0 6px 16px var(--bew-theme-color-40), inset 0 0 6px var(--bew-theme-color-30)
+        --uno: "bg-$b-search-bar-color-hover";
       }
     }
 
     &.focus input {
-      --at-apply: border-$bew-theme-color rounded-$bew-radius;
-      box-shadow: 0 6px 16px var(--bew-theme-color-40), inset 0 0 6px var(--bew-theme-color-30)
+      --uno: "border-$bew-theme-color rounded-$bew-radius";
+      box-shadow:
+        0 0 0 2px var(--bew-theme-color),
+        0 6px 16px var(--bew-theme-color-40),
+        inset 0 0 6px var(--bew-theme-color-30);
     }
   }
 
   @mixin search-content {
     @include card-content;
-    --at-apply: p-2 mt-2 absolute rounded-$bew-radius
-      hover:block;
+    --uno: "p-2 mt-2 absolute rounded-$bew-radius hover:block";
   }
 
   @mixin search-content-item {
-    --at-apply: px-4 py-2 w-full rounded-$bew-radius duration-300 cursor-pointer
-      not-first:mt-1 tracking-wider
-      hover:bg-$bew-fill-2;
+    --uno: "px-4 py-2 w-full rounded-$bew-radius duration-300 cursor-pointer not-first:mt-1 tracking-wider hover:bg-$bew-fill-2";
+    --uno: "hover:shadow-[var(--bew-shadow-1),var(--bew-shadow-edge-glow-1)]";
   }
 
   #search-history {
     @include search-content;
-    --at-apply: bg-$bew-elevated-1;
+    --uno: "bg-$bew-elevated";
 
     .history-list {
       .title {
-        --at-apply: text-lg font-500;
+        --uno: "text-lg font-500";
       }
 
       .history-item-container {
         .history-item {
-          --at-apply: relative cursor-pointer duration-300;
-          --at-apply: py-2 px-6 bg-$bew-fill-1 hover:bg-$bew-theme-color-20 hover:text-$bew-theme-color rounded-$bew-radius-half;
+          --uno: "relative cursor-pointer duration-300";
+          --uno: "py-2 px-6 bg-$bew-fill-1 hover:bg-$bew-theme-color-20 hover:text-$bew-theme-color rounded-$bew-radius-half";
         }
       }
     }
@@ -408,13 +401,13 @@ async function handleClearSearchHistory() {
 
   #search-suggestion {
     @include search-content;
-    --at-apply: bg-$bew-elevated-1;
+    --uno: "bg-$bew-elevated";
 
     .suggestion-item {
       @include search-content-item;
 
       &.active {
-        --at-apply: bg-$bew-fill-2;
+        --uno: "bg-$bew-fill-2 shadow-[var(--bew-shadow-1),var(--bew-shadow-edge-glow-1)]";
       }
     }
   }

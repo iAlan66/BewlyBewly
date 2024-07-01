@@ -1,12 +1,12 @@
 <script setup lang="ts">
+import { useThrottleFn } from '@vueuse/core'
+
 import Logo from '~/components/Logo.vue'
 import SearchBar from '~/components/SearchBar/SearchBar.vue'
 import { useBewlyApp } from '~/composables/useAppProvider'
-import { useBewlyImage } from '~/composables/useImage'
 import { homePageGridLayout, settings } from '~/logic'
 import type { HomeTab } from '~/stores/mainStore'
 import { useMainStore } from '~/stores/mainStore'
-import { delay } from '~/utils/main'
 import emitter from '~/utils/mitt'
 
 import type { GridLayoutIcon } from './types'
@@ -14,7 +14,7 @@ import { HomeSubPage } from './types'
 
 const mainStore = useMainStore()
 const { handleBackToTop, scrollbarRef } = useBewlyApp()
-const { getBewlyImage } = useBewlyImage()
+const handleThrottledBackToTop = useThrottleFn((targetScrollTop: number = 0) => handleBackToTop(targetScrollTop), 1000)
 
 const activatedPage = ref<HomeSubPage>(HomeSubPage.ForYou)
 const pages = {
@@ -105,7 +105,7 @@ function handleChangeTab(tab: HomeTab) {
     const scrollTop = osInstance.elements().viewport.scrollTop as number
 
     if ((!settings.value.useSearchPageModeOnHomePage && scrollTop > 0) || (settings.value.useSearchPageModeOnHomePage && scrollTop > 510)) {
-      handleBackToTop(settings.value.useSearchPageModeOnHomePage ? 510 : 0)
+      handleThrottledBackToTop(settings.value.useSearchPageModeOnHomePage ? 510 : 0)
     }
     else {
       if (tabContentLoading.value)
@@ -115,25 +115,17 @@ function handleChangeTab(tab: HomeTab) {
     return
   }
   else {
-    handleBackToTop(settings.value.useSearchPageModeOnHomePage ? 510 : 0)
+    handleThrottledBackToTop(settings.value.useSearchPageModeOnHomePage ? 510 : 0)
   }
 
-  // When the content of a tab is loading, prevent switching to another tab.
-  // Since `initPageAction()` within the tab replaces the `handleReachBottom` and `handlePageRefresh` functions.
-  // Therefore, this will lead to a failure in refreshing the data of the current tab
-  // because `handlePageRefresh` and `handleReachBottom` has been replaced
-  // now they are set to refresh the data of the tab you switched to
-  if (!tabContentLoading.value)
-    activatedPage.value = tab.page
+  if (tabContentLoading.value)
+    toggleTabContentLoading(false)
+
+  activatedPage.value = tab.page
 }
 
 function toggleTabContentLoading(loading: boolean) {
-  nextTick(async () => {
-    // Delay the closing effect to prevent the transition effect from being too stiff
-    if (!loading)
-      await delay(500)
-    tabContentLoading.value = loading
-  })
+  tabContentLoading.value = loading
 }
 </script>
 
@@ -149,7 +141,7 @@ function toggleTabContentLoading(loading: boolean) {
           pos="absolute left-0 top-0" w-full h-inherit bg="cover center" z-1
           pointer-events-none
           :style="{
-            backgroundImage: `url('${getBewlyImage(settings.searchPageWallpaper)}')`,
+            backgroundImage: `url('${settings.searchPageWallpaper}')`,
             backgroundAttachment: settings.searchPageModeWallpaperFixed ? 'fixed' : 'unset',
           }"
         />
@@ -203,12 +195,12 @@ function toggleTabContentLoading(loading: boolean) {
         ease-in-out flex="~ justify-between items-start gap-4"
         :class="{ hide: shouldMoveTabsUp }"
       >
-        <section flex="~ items-center gap-3 wrap">
+        <section v-if="!(!settings.alwaysShowTabsOnHomePage && currentTabs.length === 1)" flex="~ items-center gap-3 wrap">
           <button
             v-for="tab in currentTabs" :key="tab.page"
             :class="{ 'tab-activated': activatedPage === tab.page }"
             style="backdrop-filter: var(--bew-filter-glass-1)"
-            px-4 lh-35px h-35px bg="$bew-elevated-1 hover:$bew-elevated-1-hover" rounded="$bew-radius"
+            px-4 lh-35px h-35px bg="$bew-elevated hover:$bew-elevated-hover" rounded="$bew-radius"
             cursor-pointer shadow="$bew-shadow-1" box-border border="1 $bew-border-color" duration-300
             flex="~ gap-2 items-center" relative
             @click="handleChangeTab(tab)"
@@ -227,9 +219,10 @@ function toggleTabContentLoading(loading: boolean) {
         </section>
 
         <div
+          v-if="settings.enableGridLayoutSwitcher"
           style="backdrop-filter: var(--bew-filter-glass-1)"
-          flex="~ gap-1 shrink-0" p-1 h-35px bg="$bew-elevated-1" transform-gpu
-          rounded="$bew-radius" shadow="$bew-shadow-1" box-border border="1 $bew-border-color"
+          flex="~ gap-1 shrink-0" p-1 h-35px bg="$bew-elevated" transform-gpu
+          ml-auto rounded="$bew-radius" shadow="$bew-shadow-1" box-border border="1 $bew-border-color"
         >
           <div
             v-for="icon in gridLayoutIcons" :key="icon.value"
@@ -242,7 +235,7 @@ function toggleTabContentLoading(loading: boolean) {
             h-full p="x-2 y-1" rounded="$bew-radius-half" bg="hover:$bew-fill-2" duration-300
             cursor-pointer @click="homePageGridLayout = icon.value"
           >
-            <div :class="homePageGridLayout === icon.value ? icon.iconActivated : icon.icon" text-xl />
+            <div :class="homePageGridLayout === icon.value ? icon.iconActivated : icon.icon" text-base />
           </div>
         </div>
       </header>
@@ -265,34 +258,33 @@ function toggleTabContentLoading(loading: boolean) {
 <style scoped lang="scss">
 .bg-enter-active,
 .bg-leave-active {
-  --at-apply: duration-1000 ease-in-out;
+  --uno: "duration-1000 ease-in-out";
 }
 .bg-enter-from,
 .bg-leave-to {
-  --at-apply: h-100vh;
+  --uno: "h-100vh";
 }
 .bg-leave-to {
-  --at-apply: hidden
+  --uno: "hidden";
 }
 
 .content-enter-active,
 .content-leave-active {
-  --at-apply: duration-1000 ease-in-out;
+  --uno: "duration-1000 ease-in-out";
 }
 .content-enter-from,
 .content-leave-to {
-  --at-apply: opacity-0 h-100vh;
+  --uno: "opacity-0 h-100vh";
 }
 .content-leave-to {
-  --at-apply: hidden
+  --uno: "hidden";
 }
 
 .hide {
-  --at-apply: important-translate-y--70px;
+  --uno: "important-translate-y--70px";
 }
 
 .tab-activated {
-  --at-apply: bg-$bew-theme-color-auto text-$bew-text-auto
-    border-$bew-theme-color dark:border-white;
+  --uno: "bg-$bew-theme-color-auto text-$bew-text-auto border-$bew-theme-color dark:border-white";
 }
 </style>

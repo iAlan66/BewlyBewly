@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Icon } from '@iconify/vue'
 import { onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -8,7 +9,7 @@ import Tooltip from '~/components/Tooltip.vue'
 import { useApiClient } from '~/composables/api'
 import type { TopBarLiveMomentResult } from '~/models/moment/topBarLiveMoment'
 import type { TopBarMomentResult } from '~/models/moment/topBarMoment'
-import { getCSRF, isHomePage, smoothScrollToTop } from '~/utils/main'
+import { getCSRF, isHomePage, scrollToTop } from '~/utils/main'
 
 type MomentType = 'video' | 'live' | 'article'
 interface MomentTab { type: MomentType, name: any }
@@ -28,21 +29,24 @@ const api = useApiClient()
 
 const moments = reactive<MomentCard[]>([])
 const addedWatchLaterList = reactive<number[]>([])
-const momentTabs = reactive<MomentTab[]>([
-  {
-    type: 'video',
-    name: t('topbar.moments_dropdown.tabs.videos'),
-  },
-  {
-    type: 'live',
-    name: t('topbar.moments_dropdown.tabs.live'),
-  },
-  {
-    type: 'article',
-    name: t('topbar.moments_dropdown.tabs.articles'),
-  },
-])
-const selectedMomentTab = ref<MomentTab>(momentTabs[0])
+const momentTabs = computed((): MomentTab[] => {
+  return [
+    {
+      type: 'video',
+      name: t('topbar.moments_dropdown.tabs.videos'),
+    },
+    {
+      type: 'live',
+      name: t('topbar.moments_dropdown.tabs.live'),
+    },
+    {
+      type: 'article',
+      name: t('topbar.moments_dropdown.tabs.articles'),
+    },
+  ]
+},
+)
+const selectedMomentTab = ref<MomentTab>(momentTabs.value[0])
 const isLoading = ref<boolean>(false)
 const noMoreContent = ref<boolean>(false) // when noMoreContent is true, the user can't scroll down to load more content
 const livePage = ref<number>(1)
@@ -56,7 +60,7 @@ watch(() => selectedMomentTab.value.type, (newVal, oldVal) => {
     return
 
   if (momentsWrap.value)
-    smoothScrollToTop(momentsWrap.value, 300)
+    scrollToTop(momentsWrap.value)
 
   initData()
 }, { immediate: true })
@@ -69,8 +73,9 @@ onMounted(() => {
         >= momentsWrap.value.scrollHeight - 20
         && moments.length > 0
         && !isLoading.value
-      )
+      ) {
         getData()
+      }
     })
   }
 })
@@ -271,11 +276,13 @@ defineExpose({
 
 <template>
   <div
-    bg="$bew-elevated-solid-1"
+    style="backdrop-filter: var(--bew-filter-glass-1);"
+    bg="$bew-elevated"
     w="380px"
     rounded="$bew-radius"
     pos="relative"
-    shadow="$bew-shadow-2"
+    shadow="[var(--bew-shadow-edge-glow-1),var(--bew-shadow-3)]"
+    border="1 $bew-border-color"
   >
     <!-- top bar -->
     <header
@@ -286,7 +293,7 @@ defineExpose({
       p="y-4 x-6"
       pos="fixed top-0 left-0"
       w="full"
-      bg="$bew-elevated-1"
+      bg="$bew-elevated"
       z="1"
       border="!rounded-t-$bew-radius"
     >
@@ -327,9 +334,10 @@ defineExpose({
         <Empty
           v-if="!isLoading && moments.length === 0"
           pos="absolute top-0 left-0"
-          bg="$bew-content-1"
+          bg="$bew-content"
           z="0" w="full" h="full"
           flex="~ items-center"
+          rounded="$bew-radius-half"
         />
 
         <!-- moments -->
@@ -412,7 +420,6 @@ defineExpose({
                   rounded="$bew-radius-half"
                 >
                 <div
-
                   opacity-0 group-hover:opacity-100
                   pos="absolute" duration-300 bg="black opacity-60"
                   rounded="$bew-radius-half" p-1
@@ -423,7 +430,7 @@ defineExpose({
                     <div i-mingcute:carplay-line />
                   </Tooltip>
                   <Tooltip v-else :content="$t('common.added')" placement="bottom" type="dark">
-                    <div i-line-md:confirm />
+                    <Icon icon="line-md:confirm" />
                   </Tooltip>
                 </div>
               </div>
@@ -442,19 +449,20 @@ defineExpose({
 
 <style lang="scss" scoped>
 .tab {
-  --at-apply: relative text-$bew-text-2;
+  --uno: "relative text-$bew-text-2";
 
   &::after {
-    --at-apply: absolute bottom-0 left-0 w-full h-12px bg-$bew-theme-color opacity-0 transform scale-x-0 -z-1 transition-all duration-300;
-    content: '';
+    --uno: "absolute bottom-0 left-0 w-full h-12px bg-$bew-theme-color opacity-0 transform scale-x-0 -z-1";
+    --uno: "transition-all duration-300";
+    content: "";
   }
 }
 
 .tab-selected {
-  --at-apply: font-bold text-$bew-text-1;
+  --uno: "font-bold text-$bew-text-1";
 
   &::after {
-    --at-apply: scale-x-80 opacity-40;
+    --uno: "scale-x-80 opacity-40";
   }
 }
 </style>

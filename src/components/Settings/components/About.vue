@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DOMPurify from 'dompurify'
 import browser from 'webextension-polyfill'
 
 import Button from '~/components/Button.vue'
@@ -9,8 +10,14 @@ import { settings } from '~/logic'
 import { version } from '../../../../package.json'
 
 const importSettingsRef = ref<HTMLElement>()
+const hasNewVersion = ref<boolean>(false)
+const flatVersionLogo = ref<boolean>(false)
 const dialogVisible = reactive({
   justWannaChangeTheJob: false,
+})
+
+onMounted(() => {
+  checkGitHubRelease()
 })
 
 function handleImportSettings() {
@@ -57,6 +64,27 @@ function handleExportSettings() {
   a.click()
   URL.revokeObjectURL(url)
 }
+
+async function checkGitHubRelease() {
+  const apiUrl = `https://api.github.com/repos/BewlyBewly/BewlyBewly/releases/latest`
+
+  try {
+    const response = await fetch(apiUrl)
+    if (!response.ok)
+      throw new Error('Network response was not ok')
+
+    const data = await response.json()
+    const latestVersion = data.tag_name
+
+    // Here you can compare `latestVersion` with your current version
+    const currentVersion = `v${version}` // Replace with your actual current version
+
+    if (latestVersion !== currentVersion)
+      hasNewVersion.value = true
+  }
+  catch {
+  }
+}
 </script>
 
 <template>
@@ -64,7 +92,28 @@ function handleExportSettings() {
     flex items-center justify-center w-full
   >
     <div flex="~ col gap-4" items-center mt-8>
-      <img :src="`${browser.runtime.getURL('/assets/icon-512.png')}`" alt="" width="80">
+      <div relative>
+        <img
+          v-show="flatVersionLogo"
+          :src="`${browser.runtime.getURL('/assets/icon-512-flat.png')}`" alt="" width="80"
+          @click="flatVersionLogo = !flatVersionLogo"
+        >
+        <img
+          v-show="!flatVersionLogo"
+          :src="`${browser.runtime.getURL('/assets/icon-512.png')}`" alt="" width="80"
+          drop-shadow-md
+          @click="flatVersionLogo = !flatVersionLogo"
+        >
+        <a
+          v-if="hasNewVersion"
+          href="https://github.com/hakadao/BewlyBewly/releases" target="_blank"
+          style="backdrop-filter: var(--bew-filter-glass);"
+          pos="absolute bottom-0 right-0" transform="translate-x-50%" un-text="xs white" p="y-1 x-2" bg="$bew-theme-color"
+          rounded-12
+        >
+          NEW
+        </a>
+      </div>
       <section text-xl>
         BewlyBewly <a href="https://github.com/hakadao/BewlyBewly/releases" target="_blank" un-text="sm color-$bew-text-2 hover:color-$bew-text-3">v{{ version }}</a>
       </section>
@@ -87,11 +136,19 @@ function handleExportSettings() {
         </a>
         <a
           href="https://discord.gg/TS6vgBmZVp" target="_blank"
-          p="y-2 x-4" flex items-center bg="#5866F2 dark:#a0a7f8" un-text="!white dark:!black"
+          p="y-2 x-4" flex items-center bg="#5866f2 dark:#a0a7f8" un-text="!white dark:!black"
           rounded-12
           w-100px
         >
           <div i-tabler:brand-discord mr-2 shrink-0 /> Discord
+        </a>
+        <a
+          href="https://x.com/search?q=BewlyBewly%20(from%3Ahakadaooo%20OR%20from%3Ahakadaoooo)&src=typed_query" target="_blank"
+          p="y-2 x-4" flex items-center bg="#1d9bf0 dark:#7ec6f7" un-text="!white dark:!black"
+          rounded-12
+          w-100px
+        >
+          <div i-tabler:brand-twitter mr-2 shrink-0 /> Twitter
         </a>
       </section>
       <section mt-4 flex="~ col gap-2 items-center">
@@ -149,7 +206,7 @@ function handleExportSettings() {
           <div
             whitespace-pre-wrap lh-8 text-16.5px
             :frosted-glass="false"
-            v-html="$t('settings.just_wanna_change_the_job_desc')"
+            v-html="DOMPurify.sanitize($t('settings.just_wanna_change_the_job_desc'))"
           />
 
           <a href="mailto:hakadao2000@gmail.com" mt-2 text-16.5px color="$bew-theme-color">Gmail: hakadao2000@gmail.com</a>

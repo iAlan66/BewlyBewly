@@ -1,11 +1,10 @@
 .bewly-design.historyPage {
-
   // #region theme color adaption part
   // Increase the priority of the style inside by writing a non-existent selector in `:not()`
-  :not(fdjslfds) {
-
+  :not(foobar) {
     .history-list .r-info .w-info .username:hover,
-    .history-wrap a.btn {
+    .history-wrap a.btn,
+    .history-dlg .hsbtn .cancel:hover {
       color: var(--bew-theme-color);
     }
 
@@ -26,7 +25,9 @@
     .history-wrap a.btn:hover,
     .history-wrap .active,
     .history-wrap .warn .btn,
-    .history-list .cover-contain .progress {
+    .history-list .cover-contain .progress,
+    .nodata-btn,
+    .history-dlg .hsbtn .sure {
       background-color: var(--bew-theme-color);
     }
 
@@ -40,7 +41,8 @@
       border-left-color: var(--bew-theme-color);
     }
 
-    .history-wrap .history-btn .btn:hover {
+    .history-wrap .history-btn .btn:hover,
+    .history-dlg .hsbtn .cancel:hover {
       border-color: var(--bew-theme-color);
     }
 
@@ -53,8 +55,8 @@
       border-color: var(--bew-theme-color) !important;
     }
 
-    .b-head-search .search-icon>img,
-    .b-head-search .search-cancel>img {
+    .b-head-search .search-icon > img,
+    .b-head-search .search-cancel > img {
       filter: var(--bew-filter-icon-glow);
     }
   }
@@ -63,11 +65,12 @@
 
   // #region dark mode adaption part
   &.dark {
-
     .history-wrap .warn .txt,
     .history-wrap .b-head .b-head-t,
     .b-head-search,
-    .history-list .r-info .title {
+    .history-list .r-info .title,
+    .history-dlg .dlg-txt,
+    .history-dlg .hsbtn .cancel {
       color: var(--bew-text-1);
     }
 
@@ -82,7 +85,9 @@
     }
 
     .history-list .r-info .history-mark,
-    .history-list .r-info .r-txt {
+    .history-list .r-info .r-txt,
+    .history-dlg,
+    .history-dlg .hsbtn .cancel {
       border-color: var(--bew-border-color);
     }
 
@@ -112,8 +117,12 @@
       background-color: unset;
     }
 
+    .history-dlg {
+      background-color: var(--bew-content-solid);
+    }
+
     .go-top-m .go-top {
-      background-color: var(--bew-content-solid-1) !important;
+      background-color: var(--bew-content-solid) !important;
     }
   }
 }

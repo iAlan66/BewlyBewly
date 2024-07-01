@@ -1,11 +1,13 @@
 <template>
   <div
+    style="backdrop-filter: var(--bew-filter-glass-1);"
+    bg="$bew-elevated"
     flex="~ col"
-    bg="$bew-elevated-solid-1"
     rounded="$bew-radius"
-    shadow="$bew-shadow-3"
     p="4"
     w="150px"
+    shadow="[var(--bew-shadow-edge-glow-1),var(--bew-shadow-3)]"
+    border="1 $bew-border-color"
   >
     <a
       class="upload-item"
@@ -266,13 +268,14 @@
 
 <style lang="scss" scoped>
 .upload-item {
-  --at-apply: flex items-center p-2 rounded-$bew-radius mb-1 last:mb-0
-    transition-all duration-300
-    hover:bg-$bew-fill-2;
+  --uno: "flex items-center p-2 rounded-$bew-radius mb-1 last:mb-0 transition-all duration-300 hover:bg-$bew-fill-2";
 
   .item-icon {
-    --at-apply: mr-2;
+    --uno: "mr-2";
+  }
 
+  svg {
+    --uno: "w-21px h-21px";
   }
 }
 </style>
